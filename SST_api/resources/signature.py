@@ -1,3 +1,4 @@
+from flask import redirect
 from flask_restful import reqparse, Resource
 
 from SST_api.models.location import *
@@ -13,7 +14,7 @@ parser.add_argument('type', type=int, location='args')
 parser.add_argument('name', type=int, location='args')
 
 # /api/solar_system/<int:solar_system_id>/signature/
-class SignatureListBySolarSystem(Resource):
+class SignatureApi(Resource):
     ''' api for list of signatures in solar system
     '''
     
@@ -48,81 +49,71 @@ class SignatureListBySolarSystem(Resource):
     
                 #return json request
             return signatures_as_dict, 200
-
-# /api/solar_system/<int:solar_system_id>/signature=[<int:code>]
-class SignatureBySolarSystem(Resource):
-    ''' api of signature in solar system
-    '''
     
-    def get(self, solar_system_id, code_as_str):
-        ''' Return information about signatures with codes in solar system 
-        '''
-        
-            #read args
-        args = parser.parse_args()
-        
-            # create criterion by filters for signature list
-        filters = {'solar_system_id': solar_system_id,
-                   'code': code_as_str,
-                   'type': args.type,
-                   'name': args.name}
-            
-            #try read signatures by filters
-        try:
-            signatures_as_list = Signature.query.filter(Signature.criterion(filters)).all()
-        
-            # catch errors
-        except Exception as err:
-            return {err}, 404
-        
-            # if no errors
-        else:
-            
-                #convert signatures list to dict (json format)
-            signatures_as_dict = {}
-            for signature in signatures_as_list:
-                signatures_as_dict[signature.code] = signature.as_dict()
-    
-                #return json request
-            return signatures_as_dict, 200
-    
-    def post(self, solar_system_id, code_as_str):
+    def post(self, solar_system_id):
         ''' create new signature in database
         '''
         
             # read args
         args = parser.parse_args()
         
-            # create signature and try add it
-        signature_new = Signature(solar_system_id, code_as_str, args.type, args.name)
-        if signature_new.is_valid():
+            # check code exist
+        if args.code == None:
+            return {'ERROR': 'Required signature code for update'}
+
+        # create new valid signature for each code
+        signatures_as_list = []
+        
+        for each_code in args.code.split(','):
+            signature_new = Signature(solar_system_id, each_code, args.type, args.name)
+            if signature_new.is_valid():
+                signatures_as_list.append(signature_new)
+                
+        print(signatures_as_list)
+        
+        if len(signatures_as_list):
             
+                # try create all
             try:
-                db.session.add(signature_new)
+                db.session.add_all(signatures_as_list)
                 db.session.commit()
                 
+                # except error
             except Exception as err:
                 db.session.rollback()
                 return 'Error: %s' %err, 404
             
+                # if no error
             else:
-                return {signature_new.code: signature_new.as_dict()}, 201
+                
+                    #convert signatures list to dict (json format)
+                signatures_as_dict = {}
+                for signature in signatures_as_list:
+                    signatures_as_dict[signature.code] = signature.as_dict()
+        
+                    #return json request
+                return signatures_as_dict, 201
             
         else:
-            return {'Error': 'Invalid signature'}, 404
+            return {'Error': 'No any valid signatures'}, 404
     
-    def put(self, solar_system_id, code_as_str):
+    def put(self, solar_system_id):
         ''' update exist signature
         '''
         
             # read args
         args = parser.parse_args()
         
+            # check code exist
+        if args.code == None:
+            return {'ERROR': 'Required signature code for update'}
+        
             # get filter to find signature
         filters = {'solar_system_id': solar_system_id,
-                   'code': code_as_str,
+                   'code': args.code,
                    'type': None,
-                   'name': None}
+                   'name': None
+                   }
         
         try:
             signature = Signature.query.filter(Signature.criterion(filters)).one()

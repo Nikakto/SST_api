@@ -1,7 +1,7 @@
 from SST_api import db
 from flask_sqlalchemy import sqlalchemy
 
-#from SST_api.models.location import SolarSystem
+from SST_api.models.location import SolarSystem
 
 class Signature(db.Model):
     __tablename__ = 'signatures'
@@ -11,26 +11,19 @@ class Signature(db.Model):
     solar_system_id = db.Column(db.Integer, db.ForeignKey('solar_systems.id'))
     code = db.Column(db.String(7))
     
-    type_id = db.Column(db.Integer, db.ForeignKey('signatures_types.id'))
-    name_id = db.Column(db.Integer, db.ForeignKey('signatures_names.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('signatures_types.id'), default=1)
+    name_id = db.Column(db.Integer, db.ForeignKey('signatures_names.id'), default=2)
+    
+    created = db.Column(db.DateTime, server_default=sqlalchemy.text("default"))
+    checked = db.Column(db.DateTime, server_default=sqlalchemy.text("default"))
 
-    def __init__(self, systemID, code, type_id, name_id):
+    def __init__(self, systemID, code, type_id=1, name_id=2):
         
             # easy vars
         self.solar_system_id = systemID
         self.code = code
-        
-            # type_id cannot be null (default 1)
-        if type_id:
-            self.type_id = type_id
-        else:
-            self.type_id = 1
-            
-            # name_id cannot be null (default 2)
-        if name_id:
-            self.name_id = name_id
-        else:
-            self.name_id = 2
+        self.type_id = type_id
+        self.name_id = name_id
 
     def __repr__(self):
         return '<systemID=%r; code=%r>' % (self.solar_system_id, self.code)
@@ -38,11 +31,17 @@ class Signature(db.Model):
     def as_dict(self):
         ''' Return models data as dict
         '''
-        
-        data = {'solar_system_id': self.solar_system_id,
+
+        data = {'solar_system:': {
+                    'solar_system_id': self.solar_system_id,
+                    'solar_system_url': '/api/solar_system/%s' % self.solar_system_id,
+                    },
                 'code': self.code,
                 'type': self.type_id,
-                'name': self.name_id,
+                'name_id': self.name_id,
+                'name': 'NONAME',
+                'created': str(self.created),
+                'checked': str(self.checked),
                 }
         
         return data
@@ -59,15 +58,15 @@ class Signature(db.Model):
             comporators.append( Signature.solar_system_id.op('=')(filters['solar_system_id']) )
             
             # filter by codes
-        if filters['code']:
+        if filters['code'] != None:
             comporators.append( Signature.code.in_(filters['code'].split(',')) )
             
             # filter by type
-        if filters['type']:
+        if filters['type'] != None:
             comporators.append( Signature.type_id.op('=')(filters['type']) )
             
             # filter by name
-        if filters['name']:
+        if filters['name'] != None:
             comporators.append( Signature.name_id.op('=')(filters['name']) )
             
         return sqlalchemy.sql.and_( * [comporator for comporator in comporators])
@@ -89,23 +88,23 @@ class Signature(db.Model):
             chars = code_parts[0]
             nums = code_parts[1]
             
+                # len of nums and chars parts should be 3
+            if len(chars)!=3 or len(nums)!=3:
+                return False
+            
                 # if nums isn't only nums and chars isn't only chars
             if not (nums.isdigit() and chars.isalpha()):
-                print('Signature: Code error parts')
                 return False
             
         else:
-            print('Signature: Code error')
             return False
         
             # check type (it should be none or bigger then zero)
         if not (self.type_id==None or self.type_id>0):
-            print('Signature: type error')
             return False
         
             # check name (it should be none or bigger then zero)
         if not (self.name_id==None or self.name_id>0):
-            print('Signature: name error')
             return False
         
             # checked

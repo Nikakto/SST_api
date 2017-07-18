@@ -23,9 +23,7 @@ api.add_resource(SolarSystemId, '/api/solar_system/<int:solar_system_id>')
 api.add_resource(SolarSystemName, '/api/solar_system/<string:solar_system_name>')
 
     # signature
-api.add_resource(SignatureListBySolarSystem, 
+api.add_resource(SignatureApi, 
                 '/api/solar_system/<int:solar_system_id>/signature',
                 '/api/solar_system/<int:solar_system_id>/signature/'
                 )
-api.add_resource(SignatureBySolarSystem, 
-                 '/api/solar_system/<int:solar_system_id>/signature=[<string:code_as_str>]')

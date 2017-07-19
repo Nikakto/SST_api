@@ -1,5 +1,5 @@
+from SST_api import db
 from flask_restful import reqparse, Resource
-from flask_cache.backends import null
 
 from SST_api.models.location import SolarSystem
 
@@ -10,7 +10,7 @@ parser.add_argument('name', type=str, location='args')
 parser.add_argument('security', type=float, location='args')
 parser.add_argument('region', type=int, location='args')
 
-# api/system
+# api/solar_system
 class SolarSystemList(Resource):
     ''' api for solar system list
     '''
@@ -59,13 +59,14 @@ class SolarSystemId(Resource):
         args = parser.parse_args()
         
             # create criterion by filters for signature list
-        filters = {'id': args.id,
+        filters = {'id': None,
                    'name': args.name,
                    'region': args.region}
             
             #try read signatures by filters
         try:
-            solar_systems_as_list = SolarSystem.query.filter(SolarSystem.criterion(filters)).all()
+            solar_system = SolarSystem.query.filter(SolarSystem.id == solar_system_id,
+                                                    SolarSystem.criterion(filters)).one()
         
             # catch errors
         except Exception as err:
@@ -73,42 +74,36 @@ class SolarSystemId(Resource):
         
             # if no errors
         else:
-            
-                #convert signatures list to dict (json format)
-            solar_systems_as_dict = {}
-            for solar_system in solar_systems_as_list:
-                solar_systems_as_dict[solar_system.id] = solar_system.as_dict()
-    
-                #return json
-            return solar_systems_as_dict, 200
+            return {solar_system.id: solar_system.as_dict()}, 200
     
     def post(self, solar_system_id):
-        ''' create new solar system
-        '''
-
-        args = parser.parse_args()
-        return {'solar_system': {'id': solar_system_id,
-                                 'name': args.name,
-                                'security': args.security,
-                                'region_id': args.region,
-                                'region_url': '/region/%s' %args.region,
-                                }
-                }, 201
-
-class SolarSystemName(Resource):
-    ''' api for solar system by name
-    '''
-
-    def get(self, solar_system_name):
-        ''' return information for solar system by name
+        ''' create new solar system in database
         '''
         
+            # read args
         args = parser.parse_args()
-        return {'solar_system': {'id': 0,
-                                 'name': solar_system_name,
-                                 'security': -1,
-                                 'region_id': 0,
-                                 'region_url': '/region/',
-                                 }
-                }, 200
-    
+        
+            # create solar system
+        solar_system_new = SolarSystem(solar_system_id, 
+                                       args.name, 
+                                       args.security, 
+                                       args.region
+                                       )
+        
+            # check valid
+        if not solar_system_new.is_valid():
+            return {'ERROR': 'Solar system is not valid'}, 404
+            
+            # try create
+        try:
+            db.session.add(solar_system_new)
+            db.session.commit()
+            
+            # except error
+        except Exception as err:
+            db.session.rollback()
+            return 'Error: %s' %err, 404
+        
+            # if no error
+        else:
+            return {solar_system_new.id: solar_system_new.as_dict()}, 201

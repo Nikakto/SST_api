@@ -33,8 +33,8 @@ class Signature(db.Model):
         '''
 
         data = {'solar_system:': {
-                    'solar_system_id': self.solar_system_id,
-                    'solar_system_url': '/api/solar_system/%s' % self.solar_system_id,
+                    'id': self.solar_system_id,
+                    'url': '/api/solar_system/%s' % self.solar_system_id,
                     },
                 'code': self.code,
                 'type': self.type_id,

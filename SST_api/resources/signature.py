@@ -69,9 +69,7 @@ class SignatureApi(Resource):
             if signature_new.is_valid():
                 signatures_as_list.append(signature_new)
                 
-        print(signatures_as_list)
-        
-        if len(signatures_as_list):
+        if len(signatures_as_list) in range(1,30):
             
                 # try create all
             try:

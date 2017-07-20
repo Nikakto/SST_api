@@ -1,5 +1,4 @@
 # SST_api
-Server RESTful API for SST
-Test serveer of API: http://nikakto.pythonanywhere.com/
+RESTful API for [Sisters Scanner Tools](https://github.com/Nikakto/Sisters-Scanner-Tool)
 
-link for example: http://nikakto.pythonanywhere.com/api/solar_system?name=Jita
+Test server of API: http://nikakto.pythonanywhere.com/

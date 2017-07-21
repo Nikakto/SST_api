@@ -1,0 +1,149 @@
+<html>
+  <head>
+    <title>What is it?</title>
+  </head>
+  <body>
+  
+    <h1>How to use arguments</h1>
+    <p>Use it by writing ? after API link and then =, use ampersant (&amp;) to set more then one argument.</p>
+    <h3>Example</h3>
+    <p>
+        <strong>POST</strong> 
+        /api/solar_system/30004147/signature?name=5&amp;type=2
+    </p>
+
+<blockquote>
+<p>return signatures in solar system with id=30004147 and signature should be type=2 and name=5 (type and name is id in database for signature type and name)</p>
+</blockquote>
+  
+<h1>Regions</h1>
+
+<p>Arguments:</p>
+
+<ul>
+    <li>id - list of ids of regions you want to get (comma is delimiter)</li>
+    <li>name - list of names of regions you want to get (comma is delimiter)</li>
+</ul>
+
+<hr />
+<p><strong>GET</strong> /api/region</p>
+
+<blockquote>
+<p>return list of all exists regions in database (arguments is filters of regions)</p>
+</blockquote>
+
+<p><strong>GET</strong> /api/region/int:region_id</p>
+
+<blockquote>
+<p>return information about region. (arguments is filters)</p>
+</blockquote>
+
+<p><strong>POST</strong> /api/region/int:region_id</p>
+
+<blockquote>
+<p>create new region. Need arguments name.</p>
+</blockquote>
+
+<h1>Solar systems:</h1>
+
+<p>Arguments:</p>
+
+<ul>
+    <li>id - list of ids of solar systems you want to get (used only for /api/solar_system; comma is delimiter)</li>
+    <li>name - name of solar system you want to get</li>
+    <li>region - region id of solar system</li>
+</ul>
+
+<hr />
+<p><strong>GET</strong> /api/solar_system</p>
+
+<blockquote>
+<p>return list of all exists solar systems in database (arguments is filters of solar systems; argument name can be list as id)</p>
+</blockquote>
+
+<p><strong>GET</strong> /api/solar_system/int:solar_system_id</p>
+
+<blockquote>
+<p>return information about &lt;solar_system_id&gt; (arguments is filters)</p>
+</blockquote>
+
+<p><strong>POST</strong> /api/solar_system/int:solar_system_id</p>
+
+<blockquote>
+<p>create new solar system with id=&lt;solar_system_id&gt; and other required information from arguments (need all of them)</p>
+</blockquote>
+
+<h1>Signatures:</h1>
+
+<p>Arguments:</p>
+
+<ul>
+    <li>code - list of signatures codes (comma is delimiter)</li>
+    <li>name - names id of signature (always single value)</li>
+    <li>type - types id of signature (always single value)</li>
+</ul>
+
+<hr />
+<p><strong>GET</strong> /api/solar_system/int:solar_system_id/signature</p>
+
+<blockquote>
+<p>return list of all known signatures for solar system with id=&lt;solar_system_id&gt; (arguments is filters)</p>
+</blockquote>
+
+<p><strong>POST</strong> /api/solar_system/int:solar_system_id/signature</p>
+
+<blockquote>
+<p>create new signatures in solar system with id=&lt;solar_system_id&gt; (Arguments is addition information. Always require codes. If codes list has more then one signature, all signatures will create with same type and name)</p>
+</blockquote>
+
+<p><strong>PUT</strong> /api/solar_system/int:solar_system_id/signature</p>
+
+<blockquote>
+<p>update signature in solar system with id=&lt;solar_system_id&gt;(Arguments is addition information. Always require codes. Can update only one signature per request)</p>
+</blockquote>
+
+<h1>Signature names:</h1>
+
+<p>Arguments:</p>
+
+<ul>
+    <li>id - id of signature name (comma is delimiter)</li>
+    <li>name - english name of signature name (comma is delimiter)</li>
+</ul>
+
+<hr />
+<p><strong>GET</strong> /api/signature_name</p>
+
+<blockquote>
+<p>return list of all known signature names (arguments is filters)</p>
+</blockquote>
+
+<p><strong>POST</strong> /api/signature_name</p>
+
+<blockquote>
+<p>create new signature name (All arguments is needed. Can create only one signature name per request)</p>
+</blockquote>
+
+<p><strong>PUT</strong> /api/signature_name</p>
+
+<blockquote>
+<p>update signature name with id (All arguments is needed. Can update only one signature name per request)</p>
+</blockquote>
+
+<h1>Signature types:</h1>
+
+<p>Arguments:</p>
+
+<ul>
+    <li>id - id of signature type(comma is delimiter)</li>
+    <li>name - english name of signature type (comma is delimiter)</li>
+</ul>
+
+<hr />
+<p><strong>GET</strong> /api/signature_name</p>
+
+<blockquote>
+<p>return list of all known signature types (arguments is filters)</p>
+</blockquote>
+  </body>
+</html>

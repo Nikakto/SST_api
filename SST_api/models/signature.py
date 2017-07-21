@@ -2,6 +2,7 @@ from SST_api import db
 from flask_sqlalchemy import sqlalchemy
 
 from SST_api.models.location import SolarSystem
+from unittest.test.testmock.support import is_instance
 
 class Signature(db.Model):
     __tablename__ = 'signatures'
@@ -114,7 +115,7 @@ class SignatureType(db.Model):
     __tablename__ = 'signatures_types'
     
     id = db.Column(db.Integer, primary_key=True)
-    english = db.Column(db.String(20))
+    typeEnglish = db.Column(db.String(20))
     
     def __init__(self, type_id):
         self.id = type_id
@@ -122,14 +123,81 @@ class SignatureType(db.Model):
     def __repr__(self):
         return '<Table: signatures_types; id: %s; English: %r>' % (self.id, self.english)
     
+    def as_dict(self):
+        ''' Return models data as dict
+        '''
+
+        data = {'id': self.id,
+                'type': self.typeEnglish,
+                'url': '/api/signature_name?id=%s' % self.id,
+                }
+        
+        return data
+    
+    def criterion(filters):            
+        ''' return <criterion> for sql.query.filter(<criterion>) by filters dict
+        '''
+        
+            # empty filters list
+        comporators = []
+        
+            # filter by solar system
+        if filters['id']:
+            comporators.append( SignatureType.id.in_(filters['id'].split(',')) )
+            
+            # filter by english name
+        if filters['name'] != None:
+            comporators.append( SignatureType.typeEnglish.in_(filters['name'].split(',')) )
+            
+        return sqlalchemy.sql.and_( * [comporator for comporator in comporators])
+    
 class SignatureName(db.Model):
     __tablename__ = 'signatures_names'
     
     id = db.Column(db.Integer, primary_key=True)
     english = db.Column(db.String(20))
     
-    def __init__(self, name_id):
-        self.id = name_id
+    def __init__(self, english):
+        self.english = english
 
     def __repr__(self):
         return '<Table: signature_name; id: %s; English: %r>' % (self.id, self.english)
+    
+    def as_dict(self):
+        ''' Return models data as dict
+        '''
+
+        data = {'id': self.id,
+                'name': self.english,
+                'url': '/api/signature_type?id=%s' % self.id,
+                }
+        
+        return data
+    
+    def criterion(filters):            
+        ''' return <criterion> for sql.query.filter(<criterion>) by filters dict
+        '''
+        
+            # empty filters list
+        comporators = []
+        
+            # filter by solar system
+        if filters['id']:
+            comporators.append( SignatureName.id.in_(filters['id'].split(',')) )
+            
+            # filter by english name
+        if filters['english'] != None:
+            comporators.append( SignatureName.english.in_(filters['english'].split(',')) )
+            
+        return sqlalchemy.sql.and_( * [comporator for comporator in comporators])
+    
+    def is_valid(self):
+        ''' Return True if signature data is valid
+        '''
+        
+            # check name
+        if is_instance(self.english, str) and len(self.english)<5:
+            return False
+        
+            # checked
+        return True

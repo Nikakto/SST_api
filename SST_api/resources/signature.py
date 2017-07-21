@@ -1,9 +1,7 @@
-from flask import redirect
+from SST_api import db
 from flask_restful import reqparse, Resource
 
-from SST_api.models.location import *
 from SST_api.models.signature import Signature
-from flask.globals import session
 
 # create request parser
 parser = reqparse.RequestParser()

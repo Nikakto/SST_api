@@ -1,5 +1,6 @@
 from SST_api import db
 from flask_sqlalchemy import sqlalchemy
+from unittest.test.testmock.support import is_instance
 
 class SolarSystem(db.Model):
     __tablename__ = 'solar_systems'
@@ -31,7 +32,7 @@ class SolarSystem(db.Model):
                 'url': '/api/solar_system/%s' % self.id,
                 'region': {
                     'id': self.region_id,
-                    'url': '/api/region/%s' % self.region_id,
+                    'url': '/api/region?id=%s' % self.region_id,
                     },
                 }
         
@@ -43,17 +44,14 @@ class SolarSystem(db.Model):
         
             # check id
         if self.id not in range(30000000, 32000000):
-            print('solar system: id error')
             return False
     
             # check region
         if self.region_id not in range(10000000, 12000000):
-            print('solar system: region id error')
             return False
         
             # check sec and name
         if self.security == None or self.name == None:
-            print('solar system: sec or name error')
             return False
         
             # solar system is valid
@@ -92,3 +90,46 @@ class Region(db.Model):
 
     def __repr__(self):
         return '<region: %r (id: %r)' % (self.name, self.id)
+    
+    def as_dict(self):
+        ''' Return models data as dict
+        '''
+        
+        data = {'id': self.id,
+                'name': self.name,
+                'url': '/api/region?id=%s' % self.id,
+                }
+        
+        return data
+    
+    def is_valid(self):
+        ''' Return true if self.data is valid
+        '''
+        
+            # check id
+        if self.id not in range(10000000, 12000000):
+            return False
+        
+            # name cannot be None and len(name) should be 3 or more
+        if not ( is_instance(self.name,list) and len(self.name) >= 3 ):
+            return False
+        
+            # region is valid
+        return True
+    
+    def criterion(filters):            
+        ''' return <criterion> for sql.query.filter(<criterion>) by filters dict
+        '''
+        
+            # empty filters list
+        comporators = []
+            
+            # filter by solar system id
+        if filters['id'] != None:
+            comporators.append( Region.id.in_(filters['id'].split(',')) )
+            
+            # filter by name
+        if filters['name'] != None:
+            comporators.append( Region.name.in_(filters['name'].split(',')) )
+            
+        return sqlalchemy.sql.and_( * [comporator for comporator in comporators])

@@ -1,6 +1,5 @@
 from SST_api import db
 from flask_sqlalchemy import sqlalchemy
-from unittest.test.testmock.support import is_instance
 
 class SolarSystem(db.Model):
     __tablename__ = 'solar_systems'

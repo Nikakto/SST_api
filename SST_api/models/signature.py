@@ -2,7 +2,6 @@ from SST_api import db
 from flask_sqlalchemy import sqlalchemy
 
 from SST_api.models.location import SolarSystem
-from unittest.test.testmock.support import is_instance
 
 class Signature(db.Model):
     __tablename__ = 'signatures'
